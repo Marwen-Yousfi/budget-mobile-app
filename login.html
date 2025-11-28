@@ -4,20 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Login - Budget Mobile</title>
+    <title>Budget Mobile - Login</title>
     <link rel="stylesheet" href="styles.css">
     <style>
-        /* Login-specific styles */
         .login-container {
             min-height: 100vh;
             display: flex;
-            flex-direction: column;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
             padding: 20px;
-            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
 
         .login-card {
@@ -236,12 +232,40 @@
             <!-- Setup Section (First Time) -->
             <div id="setupSection" class="setup-section">
                 <div class="setup-info">
-                    <a href="#" id="resetPin">Reset PIN</a>
+                    <strong>First time setup</strong><br>
+                    Create a 4-digit PIN to secure your budget app
                 </div>
+
+                <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 12px;">Enter new PIN</p>
+                <div class="pin-input-container">
+                    <input type="password" maxlength="1" class="pin-digit" id="setupPin1" inputmode="numeric"
+                        pattern="[0-9]">
+                    <input type="password" maxlength="1" class="pin-digit" id="setupPin2" inputmode="numeric"
+                        pattern="[0-9]">
+                    <input type="password" maxlength="1" class="pin-digit" id="setupPin3" inputmode="numeric"
+                        pattern="[0-9]">
+                    <input type="password" maxlength="1" class="pin-digit" id="setupPin4" inputmode="numeric"
+                        pattern="[0-9]">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 20px; text-align: left;">
+                    <label for="setupApiKey"
+                        style="display: block; margin-bottom: 8px; font-size: 14px; color: var(--text-secondary);">API
+                        Key</label>
+                    <input type="password" id="setupApiKey" placeholder="Paste your API Key here"
+                        style="width: 100%; padding: 12px; border: 2px solid var(--border-color); border-radius: 12px; font-size: 14px;">
+                </div>
+
+                <button class="login-btn" id="setupBtn" disabled>Create PIN</button>
+            </div>
+
+            <div class="forgot-pin">
+                <a href="#" id="resetPin">Reset PIN</a>
             </div>
         </div>
+    </div>
 
-        <script src="auth.js"></script>
+    <script src="auth.js"></script>
 </body>
 
 </html>
