@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Login - Budget Mobile</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Login-specific styles */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 24px;
+            padding: 40px 30px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .login-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .login-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .login-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .pin-input-container {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        .pin-digit {
+            width: 50px;
+            height: 60px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 32px;
+            font-weight: 700;
+            text-align: center;
+            transition: all 0.2s;
+            background: var(--bg-color);
+        }
+
+        .pin-digit:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: white;
+            transform: scale(1.05);
+        }
+
+        .pin-digit.filled {
+            border-color: var(--primary-color);
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .biometric-section {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .biometric-btn {
+            background: none;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .biometric-btn:active {
+            transform: scale(0.95);
+        }
+
+        .biometric-btn.enabled {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .error-message {
+            background: #fee;
+            color: var(--danger-color);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+            display: none;
+            animation: shake 0.5s;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-10px);
+            }
+
+            75% {
+                transform: translateX(10px);
+            }
+        }
+
+        .setup-section {
+            display: none;
+            text-align: center;
+        }
+
+        .setup-section.active {
+            display: block;
+        }
+
+        .setup-info {
+            background: var(--bg-color);
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--primary-color), #8b5cf6);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-top: 20px;
+        }
+
+        .login-btn:active {
+            transform: scale(0.98);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .forgot-pin {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .forgot-pin a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="login-icon">🔒</div>
+                <h1 class="login-title">Budget Mobile</h1>
+                <p class="login-subtitle" id="loginSubtitle">Enter your PIN to continue</p>
+            </div>
+
+            <div id="errorMessage" class="error-message"></div>
+
+            <!-- Login Section -->
+            <div id="loginSection">
+                <div class="pin-input-container">
+                    <input type="password" maxlength="1" class="pin-digit" id="pin1" inputmode="numeric"
+                        pattern="[0-9]">
+                    <input type="password" maxlength="1" class="pin-digit" id="pin2" inputmode="numeric"
+                        pattern="[0-9]">
+                    <input type="password" maxlength="1" class="pin-digit" id="pin3" inputmode="numeric"
+                        pattern="[0-9]">
+                    <input type="password" maxlength="1" class="pin-digit" id="pin4" inputmode="numeric"
+                        pattern="[0-9]">
+                </div>
+
+                <div class="biometric-section" id="biometricSection" style="display: none;">
+                    <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 12px;">Or use biometric</p>
+                    <button class="biometric-btn" id="biometricBtn">
+                        <span>👆</span> Use Fingerprint
+                    </button>
+                </div>
+            </div>
+
+            <!-- Setup Section (First Time) -->
+            <div id="setupSection" class="setup-section">
+                <div class="setup-info">
+                    <a href="#" id="resetPin">Reset PIN</a>
+                </div>
+            </div>
+        </div>
+
+        <script src="auth.js"></script>
+</body>
+
+</html>
