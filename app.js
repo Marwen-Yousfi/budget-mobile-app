@@ -27,7 +27,12 @@ async function initializeApp() {
     // Load data
     await loadCategories();
     await loadTransactions();
-    updateSummary();
+    await updateSummary();
+
+    // Auto-refresh summary every 30 seconds to keep indicators updated
+    setInterval(async () => {
+        await updateSummary();
+    }, 30000);
 }
 
 function setupEventListeners() {
@@ -107,6 +112,8 @@ async function loadTransactions() {
         });
         transactions = await response.json();
         displayTransactions();
+        // Update summary after loading transactions
+        await updateSummary();
     } catch (error) {
         console.error('Error loading transactions:', error);
         showToast('Failed to load transactions');
