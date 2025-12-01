@@ -166,44 +166,44 @@ async function updateSummary() {
         });
         const allTransactions = await response.json();
 
+        console.log('=== UPDATE SUMMARY DEBUG ===');
+        console.log('Total transactions fetched:', allTransactions.length);
+
         // Find the most recent main salary to determine cycle
         const salaryTransactions = allTransactions
             .filter(t => t.isMainSalary === true)
             .sort((a, b) => new Date(b.date) - new Date(a.date));
 
-        let cycleStart, cycleEnd;
+        console.log('Salary transactions found:', salaryTransactions.length);
+
+        let cycleStart;
+        const now = new Date();
 
         if (salaryTransactions.length > 0) {
-            // Use salary cycle
+            // Use salary cycle - from last salary to NOW (no end date)
             const lastSalary = salaryTransactions[0];
             cycleStart = new Date(lastSalary.date);
-
-            // Find next salary or use 30 days
-            if (salaryTransactions.length > 1) {
-                const previousSalary = salaryTransactions[1];
-                const daysBetween = Math.round((new Date(lastSalary.date) - new Date(previousSalary.date)) / (1000 * 60 * 60 * 24));
-                cycleEnd = new Date(cycleStart);
-                cycleEnd.setDate(cycleEnd.getDate() + daysBetween);
-            } else {
-                // Default to 30 days
-                cycleEnd = new Date(cycleStart);
-                cycleEnd.setDate(cycleEnd.getDate() + 30);
-            }
+            console.log('Last salary date:', lastSalary.date);
+            console.log('Cycle start:', cycleStart.toLocaleString());
         } else {
             // Fallback to current month if no salary found
-            const now = new Date();
             cycleStart = new Date(now.getFullYear(), now.getMonth(), 1);
-            cycleEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+            console.log('No salary found, using month start:', cycleStart.toLocaleString());
         }
 
-        // Filter transactions within salary cycle
+        // Filter transactions from salary cycle start to NOW
         const cycleTransactions = allTransactions.filter(t => {
             const tDate = new Date(t.date);
-            return tDate >= cycleStart && tDate <= cycleEnd;
+            return tDate >= cycleStart && tDate <= now;
         });
 
-        console.log('Salary Cycle:', cycleStart.toLocaleDateString(), 'to', cycleEnd.toLocaleDateString());
-        console.log('Cycle transactions:', cycleTransactions.length);
+        console.log('Cycle transactions (from', cycleStart.toLocaleDateString(), 'to now):', cycleTransactions.length);
+        console.log('Cycle transactions:', cycleTransactions.map(t => ({
+            title: t.title,
+            amount: t.amount,
+            type: t.type,
+            date: new Date(t.date).toLocaleDateString()
+        })));
 
         // Calculate totals
         const income = cycleTransactions
@@ -216,7 +216,11 @@ async function updateSummary() {
 
         const balance = income - expense;
 
-        console.log('Income:', income, 'Expense:', expense, 'Balance:', balance);
+        console.log('TOTALS:');
+        console.log('Income:', income.toFixed(2));
+        console.log('Expense:', expense.toFixed(2));
+        console.log('Balance:', balance.toFixed(2));
+        console.log('===========================');
 
         // Update UI
         document.getElementById('totalIncome').textContent = `€${income.toFixed(2)}`;
