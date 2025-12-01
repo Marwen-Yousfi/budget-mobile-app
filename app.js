@@ -154,14 +154,10 @@ function displayTransactions() {
     }).join('');
 }
 
-// Calculate and update summary
+// Calculate and update summary based on SALARY CYCLE
 async function updateSummary() {
     try {
-        // Get current month's transactions
-        const now = new Date();
-        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-        const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-
+        // Get ALL transactions
         const response = await fetch(`${API_URL}/transactions`, {
             headers: {
                 'Content-Type': 'application/json',
@@ -170,22 +166,57 @@ async function updateSummary() {
         });
         const allTransactions = await response.json();
 
-        // Filter for current month
-        const monthTransactions = allTransactions.filter(t => {
+        // Find the most recent main salary to determine cycle
+        const salaryTransactions = allTransactions
+            .filter(t => t.isMainSalary === true)
+            .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        let cycleStart, cycleEnd;
+
+        if (salaryTransactions.length > 0) {
+            // Use salary cycle
+            const lastSalary = salaryTransactions[0];
+            cycleStart = new Date(lastSalary.date);
+
+            // Find next salary or use 30 days
+            if (salaryTransactions.length > 1) {
+                const previousSalary = salaryTransactions[1];
+                const daysBetween = Math.round((new Date(lastSalary.date) - new Date(previousSalary.date)) / (1000 * 60 * 60 * 24));
+                cycleEnd = new Date(cycleStart);
+                cycleEnd.setDate(cycleEnd.getDate() + daysBetween);
+            } else {
+                // Default to 30 days
+                cycleEnd = new Date(cycleStart);
+                cycleEnd.setDate(cycleEnd.getDate() + 30);
+            }
+        } else {
+            // Fallback to current month if no salary found
+            const now = new Date();
+            cycleStart = new Date(now.getFullYear(), now.getMonth(), 1);
+            cycleEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        }
+
+        // Filter transactions within salary cycle
+        const cycleTransactions = allTransactions.filter(t => {
             const tDate = new Date(t.date);
-            return tDate >= firstDay && tDate <= lastDay;
+            return tDate >= cycleStart && tDate <= cycleEnd;
         });
 
+        console.log('Salary Cycle:', cycleStart.toLocaleDateString(), 'to', cycleEnd.toLocaleDateString());
+        console.log('Cycle transactions:', cycleTransactions.length);
+
         // Calculate totals
-        const income = monthTransactions
+        const income = cycleTransactions
             .filter(t => t.type === 'income')
             .reduce((sum, t) => sum + Number(t.amount), 0);
 
-        const expense = monthTransactions
+        const expense = cycleTransactions
             .filter(t => t.type === 'expense')
             .reduce((sum, t) => sum + Number(t.amount), 0);
 
         const balance = income - expense;
+
+        console.log('Income:', income, 'Expense:', expense, 'Balance:', balance);
 
         // Update UI
         document.getElementById('totalIncome').textContent = `€${income.toFixed(2)}`;
@@ -207,7 +238,8 @@ async function handleSubmit(e) {
         amount: parseFloat(document.getElementById('amount').value),
         type: currentType,
         category: document.getElementById('category').value,
-        date: new Date(document.getElementById('date').value).toISOString(),
+        // Send simple date string - backend will convert to noon UTC
+        date: document.getElementById('date').value, // "2025-11-26"
         isMainSalary: false
     };
 
